@@ -1,1 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Merry Christmas!</title>
+  <style>
+    /****************************************/
+    /*  GLOBAL RESETS & SETTINGS            */
+    /****************************************/
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;    /* Hide scrollbars entirely */
+      touch-action: none;  /* Disable default scroll on mobile swipes */
+      font-family: 'Poppins', sans-serif; /* Updated Font */
+    }
 
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+    body {
+      /* Larger, more pronounced corner gradients */
+      background:
+        radial-gradient(circle at top left, rgba(30,30,30,1), rgba(40,40,60,0.8)),
+        radial-gradient(circle at bottom right, rgba(50, 25, 100, 0.8), rgba(30,30,30,1));
+      background-size: cover;
+      background-color: #1e1e1e;
+      color: #ffffff;
+      position: relative;
+    }
+
+    /****************************************/
+    /*  LANDING PAGE STYLING                */
+    /****************************************/
+    .landing-page {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000; /* Ensure it's on top */
+    }
+
+    .landing-message {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    .landing-buttons {
+      display: flex;
+      gap: 20px;
+    }
+
+    .landing-button {
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      background: linear-gradient(90deg, #87CEFA, #8A2BE2); /* Gradient background */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .landing-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /****************************************/
+    /*  SLIDER (HORIZONTAL SWIPE)            */
+    /****************************************/
+    .slider {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.5s ease;
+    }
+
+    .slide {
+      min-width: 100%;
+      min-height: 100%;
+      display: flex;
+      flex-direction: column; /* Stack elements vertically */
+      align-items: center;    /* Center horizontally */
+      justify-content: center;/* Center vertically */
+      text-align: center;
+      font-size: 2.5rem; /* Increased Font Size */
+      padding: 0 15px;
+      box-sizing: border-box;
+      /* Ensure content doesn't shift */
+    }
+
+    @media (max-width: 600px) {
+      .slide {
+        font-size: 1.8rem; /* Adjusted for smaller screens */
+      }
+    }
+
+    .slide1, .slide2, .slide3, .slide4, .slide5 {
+      background: transparent; /* Let body gradient show through */
+      display: flex;
+      flex-direction: column; /* Allow stacking of message and carousel */
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /****************************************/
+    /*  MAGICAL TEXT STYLING                 */
+    /****************************************/
+    .slide p {
+      /* Gradient Text */
+      background: linear-gradient(90deg, rgba(135, 206, 250, 1), rgba(138, 43, 226, 0.8));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      /* Slight transparency */
+      opacity: 0.9;
+      /* Subtle text shadow for readability */
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      /* For typewriter effect */
+      white-space: pre-wrap; /* Preserve line breaks */
+      overflow: hidden;      /* Hide overflow */
+      border-right: 0.15em solid rgba(255, 255, 255, 0.75); /* Cursor */
+      box-sizing: border-box;
+      animation: blink-caret 0.75s step-end infinite; /* Cursor blink */
+    }
+
+    /* Cursor Blink Animation */
+    @keyframes blink-caret {
+      from, to { border-color: transparent; }
+      50% { border-color: rgba(255, 255, 255, 0.75); }
+    }
+
+    /****************************************/
+    /*  PHOTO CAROUSEL STYLING               */
+    /****************************************/
+    .carousel {
+      position: relative;
+      width: 300px;          /* Set a fixed width */
+      height: 200px;         /* Set a fixed height */
+      overflow: hidden;      /* Hide overflowing images */
+      margin: 20px auto;     /* Center the carousel horizontally */
+      border-radius: 15px;    /* Rounded corners */
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Optional shadow for depth */
+    }
+
+    .carousel-image {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;    /* Ensure images cover the container without distortion */
+      top: 100%;            /* Start below the visible area */
+      left: 0;
+      opacity: 0;
+      transition: all 1s ease-in-out;
+      border-radius: 15px;    /* Rounded corners */
+    }
+
+    .carousel-image.active {
+      top: 0;
+      opacity: 1;
+    }
+
+    /* Fade-Out Border Using a Pseudo-Element */
+    .carousel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* Allow clicks to pass through */
+      background: linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0), /* Transparent at the top */
+        rgba(255, 255, 255, 0.2) 90% /* Slightly opaque at the bottom */
+      );
+      border-radius: 15px; /* Match the carousel's rounded corners */
+    }
+
+    @media (max-width: 600px) {
+      .carousel {
+        width: 250px;      /* Reduced width for smaller screens */
+        height: 166px;     /* Maintain aspect ratio */
+        border-radius: 10px; /* Slightly smaller rounded corners */
+      }
+
+      .carousel::before {
+        border-radius: 10px; /* Match the reduced border radius */
+      }
+    }
+
+    /****************************************/
+    /*  SNOWFLAKES (BACKGROUND DECOR)        */
+    /****************************************/
+    .snowflake {
+      position: absolute;
+      top: -10px;
+      color: #ffffff;
+      font-size: 1em;
+      opacity: 0.8;
+      user-select: none;
+      pointer-events: none;
+      animation: fall linear infinite;
+    }
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+      }
+    }
+
+    /****************************************/
+    /*  BILLS + CONFETTI AREA                */
+    /****************************************/
+    .bills-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); /* Center horizontally and vertically */
+      display: flex;
+      align-items: center; /* Center bills vertically within container */
+      justify-content: center; /* Center bills horizontally within container */
+      width: 0;
+      height: 0;
+      transition: width 0.8s ease, height 0.8s ease, opacity 0.5s;
+      opacity: 0;
+      z-index: 999;
+    }
+    .bills-container.show {
+      width: 500px;  /* Enough space for fan-out */
+      height: 300px;  /* Enough space for fan-out */
+      opacity: 1;
+    }
+
+    .bill {
+      position: absolute;
+      width: 90px;   /* Vertical orientation */
+      height: 180px;  /* Vertical orientation */
+      background:
+        /* Subtle stripes pattern */
+        repeating-linear-gradient(
+          135deg,
+          rgba(255,255,255,0.05) 0px,
+          rgba(255,255,255,0.05) 8px,
+          transparent 8px,
+          transparent 16px
+        ),
+        linear-gradient(45deg, #4caf50, #107f63);
+      border-radius: 12px;
+      box-shadow: 0 6px 10px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+      /* Start as invisible stack (scale=0) */
+      transform: scale(0) rotate(0deg);
+      transition: transform 0.5s ease;
+      overflow: hidden;
+      cursor: pointer; /* Indicate interactivity */
+      transform-origin: bottom center; /* Rotate from the bottom */
+    }
+
+    /* $100 in corners */
+    .bill::before {
+      content: "$100";
+      position: absolute;
+	  transform: rotate(90deg);
+      top: 16px;
+      left: 1px;
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+    .bill::after {
+      content: "$100";
+      position: absolute;
+	  transform: rotate(90deg);
+      bottom: 16px;
+      right: 1px;
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+
+    /* Center emoji on the face */
+    .bill-emoji {
+      position: absolute;
+      font-size: 2rem;
+      /* Center the emoji in the bill */
+      top: 37%;
+      left: 30%;
+	  transform: rotate(90deg);
+      pointer-events: none; /* so clicks go to the bill itself */
+    }
+
+    /* CONFETTI */
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: hsl(var(--hue), 80%, 50%);
+      top: 50%;
+      left: 50%;
+      opacity: 0;
+      animation: confetti-fall 1.8s ease forwards;
+      will-change: transform;
+    }
+    @keyframes confetti-fall {
+      0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--x), var(--y)) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /****************************************/
+    /*  FINAL TEXT STYLING                   */
+    /****************************************/
+    .final-text-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* Allow interactions to pass through */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000; /* Above bills and confetti */
+    }
+
+    .final-text {
+      opacity: 0;
+      font-size: 2.5rem; /* Increased Font Size */
+      font-weight: bold;
+      color: transparent;
+      background: linear-gradient(90deg, rgba(135, 206, 250, 1), rgba(138, 43, 226, 0.8));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      margin: 10px 0;
+      transition: opacity 1s ease-in-out;
+      position: relative; /* Needed for positioning the pseudo-element */
+      overflow: hidden;  /* Hide overflow of the pseudo-element */
+    }
+
+    /* Glimmer Animation */
+    @keyframes glimmer {
+      0% {
+        transform: translateX(0) scale(1);
+        opacity: 0;
+      }
+      50% {
+        
+        opacity: 1;
+      }
+      75% {
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateX(300%) scale(1.3);
+        opacity: 0;
+      }
+    }
+
+    .final-text::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -75%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(255, 215, 0, 0.8), rgba(255, 215, 0, 0.1));
+      transform: skewX(-25deg);
+      animation: none; /* Initially no animation */
+      pointer-events: none; /* Allow interactions to pass through */
+    }
+
+    .final-text.active-glimmer::after {
+      animation: glimmer 2.5s infinite; /* Apply animation when active */
+    }
+
+    .final-text.line1 {
+      /* Positioning for line1 */
+      position: absolute;
+      /* Initial position will be centered, animate upwards */
+    }
+
+    .final-text.line2 {
+      /* Positioning for line2 */
+      position: absolute;
+      /* Initial position will be centered, animate downwards */
+    }
+
+    /* Fade-in Animation */
+    .fade-in {
+      opacity: 0.7;
+    }
+
+    /* Move Up Animation for Line 1 */
+    @keyframes moveUp {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(-150px);
+      }
+    }
+
+    /* Move Down Animation for Line 2 */
+    @keyframes moveDown {
+      from {
+        transform: translateY(0);
+      }
+      to {
+        transform: translateY(150px);
+      }
+    }
+
+    .move-up {
+      animation: moveUp 2s forwards;
+    }
+
+    .move-down {
+      animation: moveDown 2s forwards;
+    }
+
+    /* Sparkle Effect Using Pseudo-Elements */
+    .final-text::before {
+      content: '✨';
+      position: absolute;
+      font-size: 1.5rem;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      top: -10px;
+      left: -20px;
+    }
+
+    .final-text::after {
+      /* Removed from here */
+    }
+
+    .final-text.active::before {
+      opacity: 1;
+      animation: sparkle 1s infinite;
+    }
+
+    @keyframes sparkle {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0;
+      }
+    }
+	
+	/****************************************/
+    /*  TYPEWRITER EFFECT STYLING            */
+    /****************************************/
+    /* Optional: Adjust cursor style if desired */
+    .slide p {
+      border-right: 0.15em solid rgba(255, 255, 255, 0.75); /* Cursor */
+    }
+  </style>
+</head>
+<body>
+  <div class="landing-page" id="landingPage">
+    <div class="landing-message">
+      Are you Keiron?
+    </div>
+    <div class="landing-buttons">
+      <button class="landing-button" id="yesButton">Yes</button>
+      <button class="landing-button" id="noButton">No</button>
+    </div>
+  </div>
+
+  <div class="slider" id="slider">
+    <div class="slide slide1">
+      <div class="message">
+        <p data-text="Merry Christmas, Keiron!"></p>
+      </div>
+      <div class="carousel">
+        <img src="imagecompressor/image1-min.jpg" alt="Christmas Image 1" class="carousel-image active">
+        <img src="imagecompressor/image2-min.jpg" alt="Christmas Image 2" class="carousel-image">
+        <img src="imagecompressor/image3-min.jpg" alt="Christmas Image 3" class="carousel-image">
+      </div>
+    </div>
+
+    <div class="slide slide2">
+      <div class="message">
+        <p data-text="Wishing you a season filled with joy and warmth!"></p>
+      </div>
+      <div class="carousel">
+        <img src="imagecompressor/image4-min.jpg" alt="Christmas Image 4" class="carousel-image active">
+        <img src="imagecompressor/image5-min.jpg" alt="Christmas Image 5" class="carousel-image">
+        <img src="imagecompressor/image6-min.jpg" alt="Christmas Image 6" class="carousel-image">
+      </div>
+    </div>
+
+    <div class="slide slide3">
+      <div class="message">
+        <p data-text="Stay focused on your classes, keep climbing, and don't stop being you ❤️"></p>
+      </div>
+      <div class="carousel">
+        <img src="imagecompressor/image7-min.jpg" alt="Christmas Image 7" class="carousel-image active">
+        <img src="imagecompressor/image8-min.jpg" alt="Christmas Image 8" class="carousel-image">
+        <img src="imagecompressor/image9-min.jpg" alt="Christmas Image 9" class="carousel-image">
+      </div>
+    </div>
+
+    <div class="slide slide4">
+      <div class="message">
+        <p data-text="You'll be back to climbing V4s in no time!"></p>
+      </div>
+      <div class="carousel">
+        <img src="imagecompressor/image10-min.jpg" alt="Christmas Image 10" class="carousel-image active">
+        <img src="imagecompressor/image11-min.jpg" alt="Christmas Image 11" class="carousel-image">
+        <img src="imagecompressor/image12-min.jpg" alt="Christmas Image 12" class="carousel-image">
+      </div>
+    </div>
+
+    <div class="slide slide5">
+    </div>
+  </div>
+
+  <div class="bills-container" id="billsContainer">
+    <div class="bill" id="bill1">
+      <span class="bill-emoji">&#x1F60E;</span>
+    </div>
+    <div class="bill" id="bill2">
+      <span class="bill-emoji">&#x1F60E;</span>
+    </div>
+    <div class="bill" id="bill3">
+      <span class="bill-emoji">&#x1F60E;</span>
+    </div>
+    <div class="bill" id="bill4">
+      <span class="bill-emoji">&#x1F60E;</span>
+    </div>
+    <div class="bill" id="bill5">
+      <span class="bill-emoji">&#x1F60E;</span>
+    </div>
+  </div>
+
+  <div class="final-text-container">
+    <div class="final-text line1">Here's a little something...</div>
+    <div class="final-text line2">Get yourself something nice :)</div>
+  </div>
+
+  <script>
+    /****************************************/
+    /*  LANDING PAGE LOGIC                  */
+    /****************************************/
+    const landingPage = document.getElementById('landingPage');
+    const yesButton = document.getElementById('yesButton');
+    const noButton = document.getElementById('noButton');
+
+    yesButton.addEventListener('click', () => {
+      landingPage.style.display = 'none';
+      typeWriterEffect(0); // Start typewriter effect on the first slide
+    });
+
+    noButton.addEventListener('click', () => {
+      alert('Sorry, you must be Keiron to view this page.');
+    });
+
+    /****************************************/
+    /*  GLOBAL VARIABLES & SLIDE SETUP      */
+    /****************************************/
+    const slider = document.getElementById('slider');
+    const totalSlides = 5; // We have 5 slides
+    let currentIndex = 0;  // Start on slide 0
+    let isAnimating = false;
+
+    // Touch / Mouse variables
+    let touchStartX = 0;
+    let touchEndX = 0;
+    let mouseDown = false;
+    let mouseStartX = 0;
+    let mouseEndX = 0;
+
+    // Bills
+    const billsContainer = document.getElementById('billsContainer');
+    const bills = document.querySelectorAll('.bill');
+
+    // Final Text Elements
+    const finalTextContainer = document.querySelector('.final-text-container');
+    const line1 = document.querySelector('.final-text.line1');
+    const line2 = document.querySelector('.final-text.line2');
+
+    /****************************************/
+    /*  SLIDER LOGIC (SWIPE LEFT/RIGHT)      */
+    /****************************************/
+    function goToSlide(index) {
+      if (index < 0 || index >= totalSlides) return;
+      slider.style.transform = `translateX(-${index * 100}%)`;
+      currentIndex = index;
+
+      // If final slide => 3-stage reveal
+      if (currentIndex === totalSlides - 1) {
+        showBillsAndConfetti();
+      } else {
+        hideBills();
+        hideFinalText(); // Hide final text if navigating back
+        if (currentIndex > 0) { // Only trigger typewriter effect if not on the landing page
+            typeWriterEffect(index);
+        }
+      }
+    }
+
+    function nextSlide() {
+      if (isAnimating) return;
+      isAnimating = true;
+      goToSlide(currentIndex + 1);
+      setTimeout(() => (isAnimating = false), 600);
+    }
+    function prevSlide() {
+      if (isAnimating) return;
+      isAnimating = true;
+      goToSlide(currentIndex - 1);
+      setTimeout(() => (isAnimating = false), 600);
+    }
+
+    /****************************************/
+    /*  TOUCH & MOUSE SWIPE HANDLERS         */
+    /****************************************/
+    function handleSwipeGesture() {
+      // Swiping left => next
+      if (touchEndX < touchStartX - 50) {
+        nextSlide();
+      }
+      // Swiping right => prev
+      if (touchEndX > touchStartX + 50) {
+        prevSlide();
+      }
+    }
+
+    // Touch Events
+    document.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    });
+    document.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipeGesture();
+    });
+
+    // Mouse Events for Desktop
+    document.addEventListener('mousedown', (e) => {
+      mouseDown = true;
+      mouseStartX = e.screenX;
+    });
+    document.addEventListener('mouseup', (e) => {
+      if (!mouseDown) return;
+      mouseDown = false;
+      mouseEndX = e.screenX;
+      if (mouseEndX < mouseStartX - 50) {
+        nextSlide();
+      } else if (mouseEndX > mouseStartX + 50) {
+        prevSlide();
+      }
+    });
+
+    /****************************************/
+    /*  BILLS: 3-STAGE REVEAL + INTERACTION */
+    /****************************************/
+    function showBillsAndConfetti() {
+      billsContainer.classList.add('show');
+
+      // Stage 1: Appear as a single stack
+      setTimeout(() => {
+        bills.forEach((bill) => {
+          bill.style.transform = `scale(1) rotate(0deg)`;
+        });
+      }, 200);
+
+      // Stage 2: Slight horizontal spread
+      setTimeout(() => {
+        bills.forEach((bill, i) => {
+          const offset = (i - 2) * 5; // e.g., -10, -5, 0, 5, 10
+          bill.style.transform = `scale(1) translateX(${offset}px) rotate(0deg)`;
+        });
+      }, 800);
+
+      // Stage 3: Fan out from the bottom
+      setTimeout(() => {
+        bills.forEach((bill, i) => {
+          const angle = (i - 2) * 15;  // -30, -15, 0, 15, 30 degrees
+          bill.style.transform = `scale(1) translateX(${(i - 2) * 20}px) rotate(${angle}deg)`;
+        });
+      }, 1400);
+
+      // Confetti
+      confettiBurst();
+
+      // Show final text after bills have fanned out
+      setTimeout(() => {
+        fadeInFinalText();
+      }, 1800); // Slight delay after fan-out
+    }
+
+    function hideBills() {
+      billsContainer.classList.remove('show');
+      bills.forEach((bill) => {
+        bill.style.transform = `scale(0) rotate(0deg) translateX(0)`;
+      });
+
+      // Hide final text if navigating back
+      hideFinalText();
+    }
+
+    // Interactivity: click/tap to bounce
+    bills.forEach((bill) => {
+      bill.addEventListener('click', () => {
+        bill.classList.remove('bounce'); // reset if already bouncing
+        void bill.offsetWidth;           // trigger reflow to restart animation
+        bill.classList.add('bounce');
+      });
+    });
+
+    /****************************************/
+    /*  CONFETTI BURST                      */
+    /****************************************/
+    function confettiBurst() {
+      const confettiCount = 60; // number of confetti pieces
+      for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+
+        // random hue
+        const hue = Math.floor(Math.random() * 360);
+        confetti.style.setProperty('--hue', hue);
+
+        // random x,y offsets
+        const x = (Math.random() - 0.5) * 800; // -400..+400
+        const y = (Math.random() - 0.5) * 800; // -400..+400
+        confetti.style.setProperty('--x', `${x}px`);
+        confetti.style.setProperty('--y', `${y}px`);
+
+        // random size
+        const size = Math.random() * 0.8 + 0.3;
+        confetti.style.transform = `translate(-50%, -50%) scale(${size})`;
+
+        document.body.appendChild(confetti);
+
+        // remove from DOM after animation
+        confetti.addEventListener('animationend', () => {
+          confetti.remove();
+        });
+      }
+    }
+
+    /****************************************/
+    /*  SNOWFLAKE GENERATION                 */
+    /****************************************/
+    function createSnowflakes() {
+      const snowflakeCount = 20;
+      for (let i = 0; i < snowflakeCount; i++) {
+        const snowflake = document.createElement('div');
+        snowflake.classList.add('snowflake');
+        snowflake.innerHTML = '❄️';
+
+        // random position & size
+        snowflake.style.left = Math.random() * 100 + 'vw';
+        snowflake.style.fontSize = Math.random() * 10 + 10 + 'px';
+
+        // random anim duration & delay
+        const duration = Math.random() * 5 + 5;
+        snowflake.style.animationDuration = `${duration}s`;
+        snowflake.style.animationDelay = `-${Math.random() * duration}s`;
+
+        // random horizontal shift
+        const horizontalMove = Math.random() * 100 - 50;
+        snowflake.style.transform = `translateX(${horizontalMove}px)`;
+
+        document.body.appendChild(snowflake);
+      }
+    }
+
+    /****************************************/
+    /*  FINAL TEXT ANIMATIONS                */
+    /****************************************/
+    function fadeInFinalText() {
+      line1.classList.add('fade-in', 'active');
+      line2.classList.add('fade-in', 'active');
+      
+      // Add glimmer effect
+      line1.classList.add('active-glimmer');
+      line2.classList.add('active-glimmer');
+
+      // After fade-in, separate the lines
+      setTimeout(() => {
+        line1.classList.add('move-up');
+        line2.classList.add('move-down');
+      }, 200); // 2 seconds after fade-in
+    }
+
+    function hideFinalText() {
+      // Remove all classes to reset
+      line1.classList.remove('fade-in', 'active', 'move-up', 'active-glimmer');
+      line2.classList.remove('fade-in', 'active', 'move-down', 'active-glimmer');
+    }
+
+    /****************************************/
+    /*  TYPEWRITER EFFECT FUNCTION           */
+    /****************************************/
+    function typeWriterEffect(slideIndex) {
+      const slide = document.querySelector(`.slide${slideIndex + 1}`);
+      const messageP = slide.querySelector('.message p');
+      const fullText = messageP.getAttribute('data-text');
+      messageP.textContent = ''; // Clear existing text
+
+      let currentChar = 0;
+      const typingSpeed = 50; // milliseconds per character
+
+      const typeInterval = setInterval(() => {
+        if (currentChar < fullText.length) {
+          messageP.textContent += fullText.charAt(currentChar);
+          currentChar++;
+        } else {
+          clearInterval(typeInterval);
+          // Remove cursor after typing
+          messageP.style.borderRight = 'none';
+        }
+      }, typingSpeed);
+    }
+
+    /****************************************/
+    /*  INIT ON LOAD                        */
+    /****************************************/
+    window.onload = () => {
+      createSnowflakes();
+      // goToSlide(0); // No need to call this here anymore, landing page logic handles it.
+      initializeCarousels();
+      // typeWriterEffect(0); // No need to call this here, landing page logic handles it.
+    };
+
+    /****************************************/
+    /*  PHOTO CAROUSEL FUNCTION              */
+    /****************************************/
+    function initializeCarousels() {
+      const carousels = document.querySelectorAll('.carousel');
+      carousels.forEach((carousel) => {
+        const images = carousel.querySelectorAll('.carousel-image');
+        let current = 0;
+
+        // Initialize first image
+        images[current].classList.add('active');
+
+        // Function to show next image
+        setInterval(() => {
+          images[current].classList.remove('active');
+          current = (current + 1) % images.length;
+          images[current].classList.add('active');
+        }, 3000); // Change image every 3 seconds
+      });
+    }
+  </script>
+</body>
+</html>
