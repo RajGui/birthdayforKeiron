@@ -357,25 +357,6 @@
       overflow: hidden;  /* Hide overflow of the pseudo-element */
     }
 
-    /* Glimmer Animation */
-    @keyframes glimmer {
-      0% {
-        transform: translateX(0) scale(1);
-        opacity: 0;
-      }
-      50% {
-        
-        opacity: 1;
-      }
-      75% {
-        opacity: 0.7;
-      }
-      100% {
-        transform: translateX(300%) scale(1.3);
-        opacity: 0;
-      }
-    }
-
     .final-text::after {
       content: '';
       position: absolute;
@@ -387,10 +368,6 @@
       transform: skewX(-25deg);
       animation: none; /* Initially no animation */
       pointer-events: none; /* Allow interactions to pass through */
-    }
-
-    .final-text.active-glimmer::after {
-      animation: glimmer 2.5s infinite; /* Apply animation when active */
     }
 
     .final-text.line1 {
@@ -436,35 +413,6 @@
 
     .move-down {
       animation: moveDown 2s forwards;
-    }
-
-    /* Sparkle Effect Using Pseudo-Elements */
-    .final-text::before {
-      content: '✨';
-      position: absolute;
-      font-size: 1.5rem;
-      opacity: 0;
-      transition: opacity 0.5s ease-in-out;
-      top: -10px;
-      left: -20px;
-    }
-
-    .final-text::after {
-      /* Removed from here */
-    }
-
-    .final-text.active::before {
-      opacity: 1;
-      animation: sparkle 1s infinite;
-    }
-
-    @keyframes sparkle {
-      0%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0;
-      }
     }
 	
 	/****************************************/
@@ -512,7 +460,7 @@
 
     <div class="slide slide3">
       <div class="message">
-        <p data-text="Stay focused on your classes, keep climbing, and don't stop being you ❤️"></p>
+        <p data-text="Stay focused on your classes, keep working hard, and don't stop being you ❤️"></p>
       </div>
       <div class="carousel">
         <img src="imagecompressor/image7-min.jpg" alt="Christmas Image 7" class="carousel-image active">
@@ -523,7 +471,7 @@
 
     <div class="slide slide4">
       <div class="message">
-        <p data-text="You'll be back to climbing V4s in no time!"></p>
+        <p data-text="Do what makes you happy, but don't forget about your family"></p>
       </div>
       <div class="carousel">
         <img src="imagecompressor/image10-min.jpg" alt="Christmas Image 10" class="carousel-image active">
@@ -556,7 +504,7 @@
 
   <div class="final-text-container">
     <div class="final-text line1">Here's a little something...</div>
-    <div class="final-text line2">Get yourself something nice :)</div>
+    <div class="final-text line2">Get yourself something nice :) <br>Love, your Kuya</div>
   </div>
 
   <script>
@@ -794,10 +742,6 @@
     function fadeInFinalText() {
       line1.classList.add('fade-in', 'active');
       line2.classList.add('fade-in', 'active');
-      
-      // Add glimmer effect
-      line1.classList.add('active-glimmer');
-      line2.classList.add('active-glimmer');
 
       // After fade-in, separate the lines
       setTimeout(() => {
@@ -808,8 +752,8 @@
 
     function hideFinalText() {
       // Remove all classes to reset
-      line1.classList.remove('fade-in', 'active', 'move-up', 'active-glimmer');
-      line2.classList.remove('fade-in', 'active', 'move-down', 'active-glimmer');
+      line1.classList.remove('fade-in', 'active', 'move-up');
+      line2.classList.remove('fade-in', 'active', 'move-down');
     }
 
     /****************************************/
