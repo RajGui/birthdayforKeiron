@@ -802,87 +802,112 @@
     }, 1500); // Adjust timeout as needed
 
     /****************************************/
-		/*  BILLS DRAGGING LOGIC                */
-		/****************************************/
-		let activeBill = null;
-		let initialX, initialY;
-		let offsetX = 0;
-		let offsetY = 0;
-		let billInitialPositions = []; // Store initial positions
+	/*  BILLS DRAGGING LOGIC                */
+	/****************************************/
+	let activeBill = null;
+	let dragStartX, dragStartY;
+	let billInitialPositions = [];
 
-		// Store Initial Positions of Bills
-		function storeInitialBillPositions() {
-		  billInitialPositions = []; // Clear previous positions
-		  bills.forEach((bill) => {
-			const rect = bill.getBoundingClientRect();
-			billInitialPositions.push({
-			  x: rect.left + window.scrollX,
-			  y: rect.top + window.scrollY,
-			});
-		  });
+	// Store Initial Positions of Bills (relative to viewport)
+	function storeInitialBillPositions() {
+	  billInitialPositions = [];
+	  bills.forEach((bill) => {
+		const rect = bill.getBoundingClientRect();
+		billInitialPositions.push({
+		  x: rect.left,
+		  y: rect.top,
+		});
+	  });
+	}
+
+	// Reset Bills to Fanned-Out Positions
+	function resetBillsToFannedPositions() {
+	  bills.forEach((bill, i) => {
+		const angle = (i - 2) * 15;
+		const translateX = (i - 2) * 20;
+
+		if (bill !== activeBill) {
+		  bill.style.transition = 'transform 0.3s ease';
 		}
 
-		// Reset Bills to Fanned-Out Positions
-		function resetBillsToFannedPositions() {
-		  bills.forEach((bill, i) => {
-			const angle = (i - 2) * 15;
-			bill.style.transition = 'transform 0.3s ease';
-			bill.style.transform = `scale(1) translateX(${(i - 2) * 20}px) rotate(${angle}deg)`;
+		bill.style.transform = `scale(1) translateX(${translateX}px) rotate(${angle}deg)`;
 
-			// Remove transition after it's complete to avoid affecting drag
-			bill.addEventListener('transitionend', function handler() {
-			  bill.style.transition = '';
-			  bill.removeEventListener('transitionend', handler);
-			});
-		  });
-		}
-
-		// Drag Start
-		bills.forEach((bill) => {
-		  bill.addEventListener('mousedown', (e) => {
-			if (!billsContainer.classList.contains('show')) return; // Only if bills are visible
-
-			activeBill = bill;
-			activeBill.classList.add('dragging');
-
-			// Use getBoundingClientRect() for initial position
-			const rect = activeBill.getBoundingClientRect();
-			initialX = rect.left;
-			initialY = rect.top;
-
-			offsetX = e.clientX - initialX;
-			offsetY = e.clientY - initialY;
-
-			activeBill.style.cursor = 'grabbing';
-		  });
+		bill.addEventListener('transitionend', function handler() {
+		  bill.style.transition = '';
+		  bill.removeEventListener('transitionend', handler);
 		});
+	  });
+	}
 
-		// Dragging
-		document.addEventListener('mousemove', (e) => {
-		  if (!activeBill) return;
+	// Helper function to extract rotation from transform
+	function getRotation(element) {
+	  const style = window.getComputedStyle(element);
+	  const matrix = new DOMMatrix(style.transform);
+	  return Math.round(Math.atan2(matrix.b, matrix.a) * (180 / Math.PI));
+	}
 
-		  // Calculate new position based on initial position and mouse movement
-		  const x = e.clientX - offsetX;
-		  const y = e.clientY - offsetY;
+	// Drag Start (Handles both Mouse and Touch)
+	bills.forEach((bill) => {
+	  bill.addEventListener('mousedown', handleDragStart);
+	  bill.addEventListener('touchstart', handleDragStart, { passive: false });
+	});
 
-		  // Apply the new position using translate
-		  activeBill.style.transform = `translate(${x}px, ${y}px)`;
-		});
+	// Dragging (Handles both Mouse and Touch)
+	document.addEventListener('mousemove', handleDragging);
+	document.addEventListener('touchmove', handleDragging, { passive: false });
 
-		// Drag End
-		document.addEventListener('mouseup', () => {
-		  if (!activeBill) return;
+	// Drag End (Handles both Mouse and Touch)
+	document.addEventListener('mouseup', handleDragEnd);
+	document.addEventListener('touchend', handleDragEnd);
 
-		  activeBill.classList.remove('dragging');
-		  activeBill.style.cursor = 'grab';
+	function handleDragStart(e) {
+	  if (!billsContainer.classList.contains('show')) return;
 
-		  // Smoothly return to fanned-out positions
-		  resetBillsToFannedPositions();
+	  activeBill = this;
+	  activeBill.classList.add('dragging');
 
-		  activeBill = null;
-		  offsetX = 0;
-		  offsetY = 0;
-		});
+	  const currentTransform = new DOMMatrix(window.getComputedStyle(activeBill).transform);
+
+	  if (e.type === 'touchstart') {
+		e.preventDefault();
+		dragStartX = e.touches[0].clientX - currentTransform.m41;
+		dragStartY = e.touches[0].clientY - currentTransform.m42;
+	  } else {
+		dragStartX = e.clientX - currentTransform.m41;
+		dragStartY = e.clientY - currentTransform.m42;
+	  }
+
+	  activeBill.style.cursor = 'grabbing';
+	}
+
+	function handleDragging(e) {
+	  if (!activeBill) return;
+
+	  let x, y;
+
+	  if (e.type === 'touchmove') {
+		e.preventDefault();
+		x = e.touches[0].clientX - dragStartX;
+		y = e.touches[0].clientY - dragStartY;
+	  } else {
+		x = e.clientX - dragStartX;
+		y = e.clientY - dragStartY;
+	  }
+
+	  activeBill.style.transform = `translate(${x}px, ${y}px) rotate(${getRotation(activeBill)}deg)`;
+	}
+
+	function handleDragEnd() {
+	  if (!activeBill) return;
+
+	  activeBill.classList.remove('dragging');
+	  activeBill.style.cursor = 'grab';
+
+	  resetBillsToFannedPositions();
+
+	  activeBill = null;
+	}
+	};
 
     /****************************************/
     /*  PHOTO CAROUSEL FUNCTION              */
