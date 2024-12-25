@@ -268,8 +268,17 @@
       overflow: hidden;
       cursor: pointer; /* Indicate interactivity */
       transform-origin: bottom center; /* Rotate from the bottom */
+	cursor: grab; /* Indicate draggability */
+  	user-select: none; /* Prevent text selection during drag */
+  	z-index: 10; /* Ensure bills are above other elements while dragged */
     }
 
+	.bill.dragging {
+	  z-index: 20; /* Ensure the dragged bill is on top */
+	  cursor: grabbing; /* Change cursor while dragging */
+	  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6); /* Add a shadow to indicate dragging */
+	}
+	  
     /* $100 in corners */
     .bill::before {
       content: "$100";
@@ -785,9 +794,104 @@
     /****************************************/
     window.onload = () => {
       createSnowflakes();
-      // goToSlide(0); // No need to call this here anymore, landing page logic handles it.
-      initializeCarousels();
-      // typeWriterEffect(0); // No need to call this here, landing page logic handles it.
+    initializeCarousels();
+
+    // Store initial bill positions AFTER they are fanned out
+    setTimeout(() => {
+      storeInitialBillPositions();
+    }, 1500); // Adjust timeout as needed
+
+    /****************************************/
+    /*  BILLS DRAGGING LOGIC                */
+    /****************************************/
+    let activeBill = null;
+    let dragStartX, dragStartY; // For storing the initial drag start position
+    let billInitialPositions = []; // Store initial positions
+
+    // Store Initial Positions of Bills (relative to viewport)
+    function storeInitialBillPositions() {
+      billInitialPositions = []; // Clear previous positions
+      bills.forEach((bill) => {
+        const rect = bill.getBoundingClientRect();
+        billInitialPositions.push({
+          x: rect.left,
+          y: rect.top,
+        });
+      });
+    }
+
+    // Reset Bills to Fanned-Out Positions
+    function resetBillsToFannedPositions() {
+      bills.forEach((bill, i) => {
+        const angle = (i - 2) * 15;
+        const translateX = (i - 2) * 20;
+
+        // Set transition only if not already dragging
+        if (bill !== activeBill) {
+          bill.style.transition = 'transform 0.3s ease';
+        }
+
+        // Reset transform to initial fanned-out state
+        bill.style.transform = `scale(1) translateX(${translateX}px) rotate(${angle}deg)`;
+
+        // Remove transition after it's complete
+        bill.addEventListener('transitionend', function handler() {
+          bill.style.transition = '';
+          bill.removeEventListener('transitionend', handler);
+        });
+      });
+    }
+
+    // Drag Start
+    bills.forEach((bill) => {
+      bill.addEventListener('mousedown', (e) => {
+        if (!billsContainer.classList.contains('show')) return; // Only if bills are visible
+
+        activeBill = bill;
+        activeBill.classList.add('dragging');
+
+        // Get the bill's current transform
+        const currentTransform = new DOMMatrix(window.getComputedStyle(bill).transform);
+
+        // Set the initial drag start position
+        dragStartX = e.clientX - currentTransform.m41; // m41 is translateX
+        dragStartY = e.clientY - currentTransform.m42; // m42 is translateY
+
+        activeBill.style.cursor = 'grabbing';
+      });
+    });
+
+    // Dragging
+    document.addEventListener('mousemove', (e) => {
+      if (!activeBill) return;
+
+      // Calculate new position based on drag start position and mouse movement
+      const x = e.clientX - dragStartX;
+      const y = e.clientY - dragStartY;
+
+      // Apply the new position using translate, maintaining any existing rotation
+      activeBill.style.transform = `translate(${x}px, ${y}px) rotate(${getRotation(activeBill)}deg)`;
+    });
+
+    // Drag End
+    document.addEventListener('mouseup', () => {
+      if (!activeBill) return;
+
+      activeBill.classList.remove('dragging');
+      activeBill.style.cursor = 'grab';
+
+      // Smoothly return to fanned-out positions
+      resetBillsToFannedPositions();
+
+      activeBill = null;
+    });
+
+    // Helper function to extract rotation from transform
+    function getRotation(element) {
+      const style = window.getComputedStyle(element);
+      const matrix = new DOMMatrix(style.transform);
+      return Math.round(Math.atan2(matrix.b, matrix.a) * (180 / Math.PI));
+    }
     };
 
     /****************************************/
